@@ -34,6 +34,8 @@ struct Game {
     snake: Snake,
     dimensions: (u8, u8),
     food: (u8, u8),
+    score: u32,
+    just_ate: bool,
 }
 
 impl Game {
@@ -42,6 +44,8 @@ impl Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
             food: (dimensions.0 - 1, dimensions.1 - 1),
+            score: 0,
+            just_ate: false,
         }
     }
 
@@ -50,16 +54,29 @@ impl Game {
         let head = self.snake.body.first().unwrap();
         let mut next_pos: (u8, u8) = next_position(*head, direction, self.dimensions);
 
-        self.snake.body = self
-            .snake
-            .body
-            .iter()
-            .map(|e| {
-                let tmp = next_pos;
-                next_pos = *e;
-                tmp
-            })
-            .collect::<_>();
+        if self.just_ate {
+            self.snake.body = [vec![next_pos], self.snake.body.clone()]
+                .iter()
+                .flat_map(|e| e.clone())
+                .collect::<Vec<(u8, u8)>>();
+            self.just_ate = false
+        } else {
+            self.snake.body = self
+                .snake
+                .body
+                .iter()
+                .map(|e| {
+                    let tmp = next_pos;
+                    next_pos = *e;
+                    tmp
+                })
+                .collect::<_>();
+        }
+
+        if next_pos == self.food {
+            self.food = (0, 0);
+            self.just_ate = true;
+        }
     }
 
     fn change_direction(&mut self, direction: Direction) {

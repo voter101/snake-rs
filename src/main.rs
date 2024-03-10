@@ -5,6 +5,7 @@ use crossterm::{
     style::{Color, Print, SetBackgroundColor, SetForegroundColor},
     terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType, EnterAlternateScreen},
 };
+use std::collections::HashSet;
 use std::io::{stdout, Write};
 use std::time::Duration;
 
@@ -40,19 +41,27 @@ struct Game {
 
 impl Game {
     fn new(dimensions: (u8, u8)) -> Game {
-        Game {
+        let mut new_obj = Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
-            food: (dimensions.0 - 1, dimensions.1 - 1),
+            food: (0, 0),
             score: 0,
             just_ate: false,
-        }
+        };
+        new_obj.spawn_food();
+
+        new_obj
+    }
+
+    fn game_over(&self) {
+        panic!("{}", self.score);
     }
 
     fn tick(&mut self) {
         let direction = self.snake.next_direction();
         let head = self.snake.body.first().unwrap();
         let mut next_pos: (u8, u8) = next_position(*head, direction, self.dimensions);
+        let head_next = next_pos;
 
         if self.just_ate {
             self.snake.body = [vec![next_pos], self.snake.body.clone()]
@@ -73,14 +82,33 @@ impl Game {
                 .collect::<_>();
         }
 
-        if next_pos == self.food {
-            self.food = (0, 0);
+        if head_next == self.food {
+            self.score += 1;
             self.just_ate = true;
+            self.spawn_food();
         }
     }
 
     fn change_direction(&mut self, direction: Direction) {
         self.snake.change_direction(direction)
+    }
+
+    fn spawn_food(&mut self) {
+        let mut board_elements: HashSet<(u8, u8)> = (0..self.dimensions.0)
+            .flat_map(|row| {
+                (0..self.dimensions.1)
+                    .map(|col| (row, col))
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        for snake_piece in &self.snake.body {
+            board_elements.remove(&snake_piece);
+        }
+
+        match board_elements.iter().next() {
+            Some(e) => self.food = e.clone(),
+            None => self.game_over(),
+        }
     }
 
     fn board_to_lines(&self) -> Vec<String> {

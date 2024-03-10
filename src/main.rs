@@ -215,7 +215,7 @@ fn display_board(game: &Game) -> Vec<Vec<BoardPiece>> {
 }
 
 fn main() -> std::io::Result<()> {
-    let mut game = Game::new((32, 32));
+    let mut game = Game::new((8, 16));
 
     let mut stdout = stdout();
     enable_raw_mode()?;
@@ -228,7 +228,7 @@ fn main() -> std::io::Result<()> {
     )?;
 
     loop {
-        if poll(Duration::from_millis(150))? {
+        if poll(Duration::from_millis(250))? {
             match read()? {
                 Event::Key(event) => {
                     match event.code {

@@ -27,6 +27,7 @@ enum BoardPiece {
 struct Snake {
     body: Vec<(u8, u8)>,
     direction: Direction,
+    next_direction: Option<Direction>,
 }
 
 struct Game {
@@ -38,18 +39,16 @@ struct Game {
 impl Game {
     fn new(dimensions: (u8, u8)) -> Game {
         Game {
-            snake: Snake {
-                body: vec![(0, 0), (0, 1), (0, 2)],
-                direction: Direction::Down,
-            },
+            snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
             food: (dimensions.0 - 1, dimensions.1 - 1),
         }
     }
 
     fn tick(&mut self) {
+        let direction = self.snake.next_direction();
         let head = self.snake.body.first().unwrap();
-        let mut next_pos: (u8, u8) = next_position(*head, self.snake.direction, self.dimensions);
+        let mut next_pos: (u8, u8) = next_position(*head, direction, self.dimensions);
 
         self.snake.body = self
             .snake
@@ -64,7 +63,7 @@ impl Game {
     }
 
     fn change_direction(&mut self, direction: Direction) {
-        self.snake.direction = direction;
+        self.snake.change_direction(direction)
     }
 
     fn board_to_lines(&self) -> Vec<String> {
@@ -82,6 +81,41 @@ impl Game {
                     .collect::<String>()
             })
             .collect()
+    }
+}
+
+impl Snake {
+    fn new(body: Vec<(u8, u8)>, direction: Direction) -> Snake {
+        Snake {
+            body,
+            direction,
+            next_direction: None,
+        }
+    }
+
+    fn change_direction(&mut self, direction: Direction) {
+        match direction {
+            Direction::Up | Direction::Down => match self.direction {
+                Direction::Left | Direction::Right => self.next_direction = Some(direction),
+                _ => {}
+            },
+            Direction::Left | Direction::Right => match self.direction {
+                Direction::Up | Direction::Down => self.next_direction = Some(direction),
+                _ => {}
+            },
+        }
+    }
+
+    fn next_direction(&mut self) -> Direction {
+        match self.next_direction {
+            Some(direction) => {
+                self.direction = direction;
+                self.next_direction = None;
+            }
+            None => {}
+        }
+
+        self.direction
     }
 }
 

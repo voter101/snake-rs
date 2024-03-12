@@ -54,7 +54,9 @@ impl Game {
     }
 
     fn game_over(&self) {
-        panic!("{}", self.score);
+        println!("Game over!");
+        println!("Final score: {}", self.score);
+        panic!();
     }
 
     fn tick(&mut self) {
@@ -80,6 +82,10 @@ impl Game {
                     tmp
                 })
                 .collect::<_>();
+        }
+
+        if self.snake.body[1..].contains(&head_next) {
+            self.game_over();
         }
 
         if head_next == self.food {

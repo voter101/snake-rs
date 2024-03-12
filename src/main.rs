@@ -233,6 +233,8 @@ fn main() -> std::io::Result<()> {
         Hide
     )?;
 
+    execute!(stdout, Clear(ClearType::All))?;
+
     loop {
         if poll(Duration::from_millis(250))? {
             match read()? {
@@ -257,8 +259,6 @@ fn main() -> std::io::Result<()> {
                 _ => {}
             }
         } else {
-            queue!(stdout, Clear(ClearType::All))?;
-
             game.board_to_lines()
                 .iter()
                 .enumerate()

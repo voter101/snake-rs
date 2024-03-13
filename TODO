@@ -13,3 +13,8 @@
 - Different maps, e.g. with no overlapping map
 - Leaderboard
 - Time based events
+- Update README with a GIF
+
+Weird:
+
+- Support for Nerdfont? (fallback required)

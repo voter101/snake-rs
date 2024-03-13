@@ -1,0 +1,15 @@
+- Show score
+- Complete rework of the game loop - do not rely on time passing to update the game
+- Split things into files
+- Various speeds
+- React to changing window size
+- Halt game when terminal size is too small
+- Solve issue with UTF-8. I was not able to print the border with `█`, so I used spaces, which is probably not optimal. Lines are usually taller rather than wider, which causes weird looking top and bottom borders.
+- Proper Game Over screen instead of `panic!`
+- Handle tight turns by queueing(?) the inputs (e.g. quick 180 degree change with `Right` -> `Down`)
+  - How did the original handle it? It feels like they do 2-element queue there
+- Starting menu
+- Menu in the game
+- Different maps, e.g. with no overlapping map
+- Leaderboard
+- Time based events

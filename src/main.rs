@@ -6,7 +6,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType, EnterAlternateScreen},
 };
 use std::io::stdout;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 mod board;
 mod direction;
@@ -15,7 +15,7 @@ mod game;
 mod snake;
 
 fn main() -> std::io::Result<()> {
-    let mut game = game::Game::new((8, 16));
+    let mut game = game::Game::new((8, 16), Duration::from_millis(200));
 
     let mut stdout = stdout();
     enable_raw_mode()?;
@@ -31,8 +31,17 @@ fn main() -> std::io::Result<()> {
 
     draw::draw_ui(game.dimensions, &mut stdout)?;
 
+    let mut last_frame_time = Instant::now();
+
     loop {
-        if poll(Duration::from_millis(250))? {
+        let now = Instant::now();
+        let delta = now - last_frame_time;
+        last_frame_time = now;
+
+        game.tick(delta);
+        draw::draw_game(&game, &mut stdout)?;
+
+        if poll(Duration::from_millis(0))? {
             match read()? {
                 Event::Key(event) => {
                     match event.code {
@@ -54,9 +63,6 @@ fn main() -> std::io::Result<()> {
                 }
                 _ => {}
             }
-        } else {
-            draw::draw_game(&game, &mut stdout)?;
-            game.tick();
         }
     }
 

@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::time::Duration;
 
 use crate::board::BoardPiece;
 use crate::direction::Direction;
@@ -10,16 +11,20 @@ pub struct Game {
     pub food: (u8, u8),
     pub score: u32,
     just_ate: bool,
+    next_update_in: Duration,
+    speed: Duration,
 }
 
 impl Game {
-    pub fn new(dimensions: (u8, u8)) -> Game {
+    pub fn new(dimensions: (u8, u8), speed: Duration) -> Game {
         let mut new_obj = Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
             food: (0, 0),
             score: 0,
             just_ate: false,
+            next_update_in: speed,
+            speed,
         };
         new_obj.spawn_food();
 
@@ -32,7 +37,15 @@ impl Game {
         panic!();
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self, delta: Duration) {
+        if !self.can_tick(delta) {
+            self.next_update_in -= delta;
+            return;
+        }
+
+        // FIXME: This mechanism does not work well in case update window is missed significantly
+        self.next_update_in = self.speed;
+
         let direction = self.snake.next_direction();
         let head = self.snake.body.first().unwrap();
         let mut next_pos: (u8, u8) = next_position(*head, direction, self.dimensions);
@@ -66,6 +79,10 @@ impl Game {
             self.just_ate = true;
             self.spawn_food();
         }
+    }
+
+    fn can_tick(&self, delta: Duration) -> bool {
+        self.next_update_in < delta
     }
 
     pub fn change_direction(&mut self, direction: Direction) {

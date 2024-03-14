@@ -1,5 +1,4 @@
 - Show score
-- Complete rework of the game loop - do not rely on time passing to update the game
 - FPS counter
 - Various speeds
 - React to changing window size

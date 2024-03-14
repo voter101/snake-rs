@@ -1,6 +1,6 @@
 - Show score
 - Complete rework of the game loop - do not rely on time passing to update the game
-- Split things into files
+- FPS counter
 - Various speeds
 - React to changing window size
 - Halt game when terminal size is too small

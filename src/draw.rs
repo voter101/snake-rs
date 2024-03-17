@@ -1,10 +1,14 @@
+use crate::consts;
 use crossterm::{
     cursor::MoveTo,
     queue,
     style::{Color, Print, SetBackgroundColor, SetForegroundColor},
-    terminal::window_size,
+    terminal::{window_size, Clear, ClearType},
 };
-use std::io::{Stdout, Write};
+use std::{
+    io::{Stdout, Write},
+    time::Duration,
+};
 
 use crate::game::Game;
 
@@ -107,6 +111,32 @@ fn queue_draw_score(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
             game_screen_start.0 + (game.dimensions.0 as u16) + 1
         ),
         Print(score_line)
+    )?;
+
+    Ok(())
+}
+
+pub fn draw_fps(last_delta: Duration, stdout: &mut Stdout) -> std::io::Result<()> {
+    let terminal_size = window_size()?;
+    let delta = if last_delta.as_secs_f64() == 0. {
+        1.0
+    } else {
+        last_delta.as_secs_f64()
+    };
+    let fps = (1.0 / delta) as u16;
+
+    // I know I could use log10, but I was lazy
+    let fps_length = fps.to_string().len() as u16;
+
+    queue!(
+        stdout,
+        MoveTo(terminal_size.columns - fps_length, 0),
+        SetBackgroundColor(consts::BACKGROUND_COLOR),
+        // In case FPS count changes the decimal length
+        Clear(ClearType::CurrentLine),
+        SetBackgroundColor(Color::DarkGreen),
+        SetForegroundColor(Color::Black),
+        Print(fps as u16)
     )?;
 
     Ok(())

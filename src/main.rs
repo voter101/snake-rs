@@ -2,13 +2,14 @@ use crossterm::{
     cursor::Hide,
     event::{poll, read, Event, KeyCode},
     execute,
-    style::{Color, SetBackgroundColor, SetForegroundColor},
+    style::{SetBackgroundColor, SetForegroundColor},
     terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType, EnterAlternateScreen},
 };
 use std::io::stdout;
 use std::time::{Duration, Instant};
 
 mod board;
+mod consts;
 mod direction;
 mod draw;
 mod game;
@@ -22,8 +23,8 @@ fn main() -> std::io::Result<()> {
     execute!(
         stdout,
         EnterAlternateScreen,
-        SetBackgroundColor(Color::DarkGrey),
-        SetForegroundColor(Color::White),
+        SetBackgroundColor(consts::BACKGROUND_COLOR),
+        SetForegroundColor(consts::BACKGROUND_TEXT_COLOR),
         Hide
     )?;
 
@@ -40,6 +41,7 @@ fn main() -> std::io::Result<()> {
 
         game.tick(delta);
         draw::draw_game(&game, &mut stdout)?;
+        draw::draw_fps(delta, &mut stdout)?;
 
         if poll(Duration::from_millis(0))? {
             match read()? {

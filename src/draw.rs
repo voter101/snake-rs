@@ -63,6 +63,9 @@ pub fn draw_game(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
     let terminal_size = window_size()?;
     let game_screen_start =
         game_screen_starting_position((terminal_size.rows, terminal_size.columns), game.dimensions);
+
+    queue_draw_score(game, stdout)?;
+
     queue!(
         stdout,
         SetBackgroundColor(Color::DarkGreen),
@@ -81,6 +84,30 @@ pub fn draw_game(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
         });
 
     stdout.flush()?;
+
+    Ok(())
+}
+
+fn queue_draw_score(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
+    let terminal_size = window_size()?;
+    let game_screen_start =
+        game_screen_starting_position((terminal_size.rows, terminal_size.columns), game.dimensions);
+
+    queue!(
+        stdout,
+        SetBackgroundColor(Color::DarkGrey),
+        SetForegroundColor(Color::White),
+    )?;
+
+    let score_line = format!("Score: {}", game.score);
+    queue!(
+        stdout,
+        MoveTo(
+            game_screen_start.1,
+            game_screen_start.0 + (game.dimensions.0 as u16) + 1
+        ),
+        Print(score_line)
+    )?;
 
     Ok(())
 }

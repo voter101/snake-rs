@@ -1,4 +1,6 @@
+- Pick next position for fruit in a less "random" way: randomize 3 elements and pick the one that has the highest manhattan score from the head
 - Various game speeds
+- Adjust score based on the speed
 - React to changing window size
 - Halt game when terminal size is too small
 - Solve issue with UTF-8. I was not able to print the border with `█`, so I used spaces, which is probably not optimal. Lines are usually taller rather than wider, which causes weird looking top and bottom borders.
@@ -7,14 +9,16 @@
 - FPS limiter
 - Handle tight turns by queueing(?) the inputs (e.g. quick 180 degree change with `Right` -> `Down`)
   - How did the original handle it? It feels like they do 2-element queue there
+  - Current solution feels close to fine tbh
 - Starting menu
 - Menu in the game
-- Different maps, e.g. with no overlapping map
-- Leaderboard
-- Time based events
-- Update README with a GIF
+- Different maps, e.g. with no overlapping map (walls)
+- Local leaderboard
+- Time based events (extra-big fruit to pickup)
+- Update README with a GIF showcasing the game
 
 Weird:
 
 - Support for Nerdfont? (fallback required)
 - Port to Playdate
+- Option to speed-up on demand by holding a key

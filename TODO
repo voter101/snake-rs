@@ -2,6 +2,7 @@
 - Adjust score based on the speed
 - React to changing window size
 - Halt game when terminal size is too small
+- Render legend for how to exit the game
 - Solve issue with UTF-8. I was not able to print the border with `█`, so I used spaces, which is probably not optimal. Lines are usually taller rather than wider, which causes weird looking top and bottom borders.
 - Proper Game Over screen instead of `panic!`
 - Show FPS counter as an option

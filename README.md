@@ -1,9 +1,8 @@
 # Snake.rs - snake clone in Rust
 
-I wanted to toy with creating a simple game in a terminal, so here it is. The
-purpose is purely educational.
+I wanted to toy with creating a simple game in a terminal while learning Rust.
 
-The game is being built iteratively, so it's far from a playable state.
+The purpose of this project is purely educational.
 
 ## Usage
 

@@ -1,4 +1,3 @@
-- Pick next position for fruit in a less "random" way: randomize 3 elements and pick the one that has the highest manhattan score from the head
 - Various game speeds
 - Adjust score based on the speed
 - React to changing window size

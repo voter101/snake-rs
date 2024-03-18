@@ -14,6 +14,7 @@ mod direction;
 mod draw;
 mod game;
 mod snake;
+mod utils;
 
 fn main() -> std::io::Result<()> {
     let mut game = game::Game::new((8, 16), Duration::from_millis(200));

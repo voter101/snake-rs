@@ -4,6 +4,7 @@ use std::time::Duration;
 use crate::board::BoardPiece;
 use crate::direction::Direction;
 use crate::snake::Snake;
+use crate::utils::manhattan_distance;
 
 pub struct Game {
     snake: Snake,
@@ -101,7 +102,14 @@ impl Game {
             board_elements.remove(&snake_piece);
         }
 
-        match board_elements.iter().next() {
+        let snake_head = &self.snake.body.first().unwrap();
+
+        // Nerf randomness
+        let candidate = board_elements.iter().take(3).max_by(|a, b| {
+            manhattan_distance(**a, **snake_head).cmp(&manhattan_distance(**b, **snake_head))
+        });
+
+        match candidate {
             Some(e) => self.food = e.clone(),
             None => self.game_over(),
         }

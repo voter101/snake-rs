@@ -80,7 +80,7 @@ impl Game {
         }
 
         if head_next == self.food {
-            self.score += 1;
+            self.score += self.difficulty as u32;
             self.just_ate = true;
             self.spawn_food();
         }

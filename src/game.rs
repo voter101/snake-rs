@@ -20,7 +20,7 @@ pub struct Game {
 impl Game {
     pub fn new(dimensions: (u8, u8), difficulty: u8) -> Game {
         let difficulty = difficulty.clamp(1, 9);
-        let speed = Duration::from_millis(450 - difficulty as u64 * 40);
+        let speed = Duration::from_millis(350 - difficulty as u64 * 30);
         let mut new_obj = Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
@@ -80,7 +80,7 @@ impl Game {
         }
 
         if head_next == self.food {
-            self.score += self.difficulty as u32;
+            self.score += self.difficulty as f64 as u32;
             self.just_ate = true;
             self.spawn_food();
         }

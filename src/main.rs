@@ -17,7 +17,8 @@ mod snake;
 mod utils;
 
 fn main() -> std::io::Result<()> {
-    let mut game = game::Game::new((8, 16), Duration::from_millis(200));
+    let difficulty = 9;
+    let mut game = game::Game::new((8, 16), difficulty);
 
     let mut stdout = stdout();
     enable_raw_mode()?;

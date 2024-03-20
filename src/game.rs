@@ -14,10 +14,13 @@ pub struct Game {
     just_ate: bool,
     next_update_in: Duration,
     speed: Duration,
+    difficulty: u8,
 }
 
 impl Game {
-    pub fn new(dimensions: (u8, u8), speed: Duration) -> Game {
+    pub fn new(dimensions: (u8, u8), difficulty: u8) -> Game {
+        let difficulty = difficulty.clamp(1, 9);
+        let speed = Duration::from_millis(450 - difficulty as u64 * 40);
         let mut new_obj = Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
@@ -26,6 +29,7 @@ impl Game {
             just_ate: false,
             next_update_in: speed,
             speed,
+            difficulty,
         };
         new_obj.spawn_food();
 

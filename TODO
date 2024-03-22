@@ -1,4 +1,3 @@
-- React to changing window size
 - React to changing terminal window focus (on tabs in iTerm)
 - Halt game when terminal size is too small
 - Render legend for how to exit the game

@@ -12,6 +12,11 @@ use std::{
 
 use crate::game::Game;
 
+pub fn full_clear(stdout: &mut Stdout) -> std::io::Result<()> {
+    queue!(stdout, Clear(ClearType::All),)?;
+    Ok(())
+}
+
 pub fn draw_ui(game_dimensions: (u8, u8), stdout: &mut Stdout) -> std::io::Result<()> {
     let terminal_size = window_size()?;
     let game_screen_start =
@@ -134,9 +139,10 @@ pub fn draw_fps(last_delta: Duration, stdout: &mut Stdout) -> std::io::Result<()
         SetBackgroundColor(consts::BACKGROUND_COLOR),
         // In case FPS count changes the decimal length
         Clear(ClearType::CurrentLine),
-        SetBackgroundColor(Color::DarkGreen),
+        SetBackgroundColor(Color::Blue),
         SetForegroundColor(Color::Black),
-        Print(fps as u16)
+        Print(fps as u16),
+        SetBackgroundColor(consts::BACKGROUND_COLOR),
     )?;
 
     Ok(())

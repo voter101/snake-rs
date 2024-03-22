@@ -65,6 +65,10 @@ fn main() -> std::io::Result<()> {
                         _ => {}
                     };
                 }
+                Event::Resize(_, _) => {
+                    draw::full_clear(&mut stdout)?;
+                    draw::draw_ui(game.dimensions, &mut stdout)?;
+                }
                 _ => {}
             }
         }

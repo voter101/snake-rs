@@ -15,6 +15,7 @@ mod draw;
 mod game;
 mod snake;
 mod utils;
+mod window;
 
 fn main() -> std::io::Result<()> {
     let difficulty = 9;
@@ -42,34 +43,38 @@ fn main() -> std::io::Result<()> {
         last_frame_time = now;
 
         game.tick(delta);
-        draw::draw_game(&game, &mut stdout)?;
-        draw::draw_fps(delta, &mut stdout)?;
+        if window::is_window_big_enough(&game) {
+            draw::draw_game(&game, &mut stdout)?;
+            draw::draw_fps(delta, &mut stdout)?;
 
-        if poll(Duration::from_millis(0))? {
-            match read()? {
-                Event::Key(event) => {
-                    match event.code {
-                        KeyCode::Up | KeyCode::Char('k') | KeyCode::Char('w') => {
-                            game.change_direction(direction::Direction::Up)
+            if poll(Duration::from_millis(0))? {
+                match read()? {
+                    Event::Key(event) => {
+                        match event.code {
+                            KeyCode::Up | KeyCode::Char('k') | KeyCode::Char('w') => {
+                                game.change_direction(direction::Direction::Up)
+                            }
+                            KeyCode::Down | KeyCode::Char('j') | KeyCode::Char('s') => {
+                                game.change_direction(direction::Direction::Down)
+                            }
+                            KeyCode::Left | KeyCode::Char('h') | KeyCode::Char('a') => {
+                                game.change_direction(direction::Direction::Left)
+                            }
+                            KeyCode::Right | KeyCode::Char('l') | KeyCode::Char('d') => {
+                                game.change_direction(direction::Direction::Right)
+                            }
+                            KeyCode::Esc => break,
+                            _ => {}
+                        };
+                    }
+                    Event::Resize(_, _) => {
+                        if window::is_window_big_enough(&game) {
+                            draw::full_clear(&mut stdout)?;
+                            draw::draw_ui(game.dimensions, &mut stdout)?;
                         }
-                        KeyCode::Down | KeyCode::Char('j') | KeyCode::Char('s') => {
-                            game.change_direction(direction::Direction::Down)
-                        }
-                        KeyCode::Left | KeyCode::Char('h') | KeyCode::Char('a') => {
-                            game.change_direction(direction::Direction::Left)
-                        }
-                        KeyCode::Right | KeyCode::Char('l') | KeyCode::Char('d') => {
-                            game.change_direction(direction::Direction::Right)
-                        }
-                        KeyCode::Esc => break,
-                        _ => {}
-                    };
+                    }
+                    _ => {}
                 }
-                Event::Resize(_, _) => {
-                    draw::full_clear(&mut stdout)?;
-                    draw::draw_ui(game.dimensions, &mut stdout)?;
-                }
-                _ => {}
             }
         }
     }

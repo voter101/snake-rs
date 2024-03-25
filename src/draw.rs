@@ -1,26 +1,32 @@
-use crate::consts;
 use crossterm::{
     cursor::MoveTo,
     queue,
     style::{Color, Print, SetBackgroundColor, SetForegroundColor},
-    terminal::{window_size, Clear, ClearType},
+    terminal::{Clear, ClearType},
 };
 use std::{
     io::{Stdout, Write},
     time::Duration,
 };
 
-use crate::game::Game;
+use crate::{consts, game::Game, window::WindowDimensions};
 
 pub fn full_clear(stdout: &mut Stdout) -> std::io::Result<()> {
     queue!(stdout, Clear(ClearType::All),)?;
     Ok(())
 }
 
-pub fn draw_ui(game_dimensions: (u16, u16), stdout: &mut Stdout) -> std::io::Result<()> {
-    let terminal_size = window_size()?;
+pub fn is_window_big_enough(game: &Game, window_dim: WindowDimensions) -> bool {
+    window_dim.0 >= game.dimensions.0 + 4 && window_dim.1 >= game.dimensions.1 + 4
+}
+
+pub fn draw_ui(
+    game_dimensions: (u16, u16),
+    window_dim: WindowDimensions,
+    stdout: &mut Stdout,
+) -> std::io::Result<()> {
     let game_screen_start =
-        game_screen_starting_position((terminal_size.rows, terminal_size.columns), game_dimensions);
+        game_screen_starting_position((window_dim.0, window_dim.1), game_dimensions);
 
     // Top and bottom line
     queue!(
@@ -68,12 +74,15 @@ fn game_screen_starting_position(
     )
 }
 
-pub fn draw_game(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
-    let terminal_size = window_size()?;
+pub fn draw_game(
+    game: &Game,
+    window_dim: WindowDimensions,
+    stdout: &mut Stdout,
+) -> std::io::Result<()> {
     let game_screen_start =
-        game_screen_starting_position((terminal_size.rows, terminal_size.columns), game.dimensions);
+        game_screen_starting_position((window_dim.0, window_dim.1), game.dimensions);
 
-    queue_draw_score(game, stdout)?;
+    queue_draw_score(game, window_dim, stdout)?;
 
     queue!(
         stdout,
@@ -97,10 +106,13 @@ pub fn draw_game(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
     Ok(())
 }
 
-fn queue_draw_score(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
-    let terminal_size = window_size()?;
+fn queue_draw_score(
+    game: &Game,
+    window_dim: WindowDimensions,
+    stdout: &mut Stdout,
+) -> std::io::Result<()> {
     let game_screen_start =
-        game_screen_starting_position((terminal_size.rows, terminal_size.columns), game.dimensions);
+        game_screen_starting_position((window_dim.0, window_dim.1), game.dimensions);
 
     queue!(
         stdout,
@@ -121,8 +133,11 @@ fn queue_draw_score(game: &Game, stdout: &mut Stdout) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn draw_fps(last_delta: Duration, stdout: &mut Stdout) -> std::io::Result<()> {
-    let terminal_size = window_size()?;
+pub fn draw_fps(
+    last_delta: Duration,
+    window_dim: WindowDimensions,
+    stdout: &mut Stdout,
+) -> std::io::Result<()> {
     let delta = if last_delta.as_secs_f64() == 0. {
         1.0
     } else {
@@ -135,7 +150,7 @@ pub fn draw_fps(last_delta: Duration, stdout: &mut Stdout) -> std::io::Result<()
 
     queue!(
         stdout,
-        MoveTo(terminal_size.columns - fps_length, 0),
+        MoveTo(window_dim.1 - fps_length, 0),
         SetBackgroundColor(consts::BACKGROUND_COLOR),
         // In case FPS count changes the decimal length
         Clear(ClearType::CurrentLine),

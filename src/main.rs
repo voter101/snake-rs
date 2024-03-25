@@ -33,19 +33,22 @@ fn main() -> std::io::Result<()> {
 
     execute!(stdout, Clear(ClearType::All))?;
 
-    draw::draw_ui(game.dimensions, &mut stdout)?;
+    draw::draw_ui(game.dimensions, window::window_dimensions(), &mut stdout)?;
 
     let mut last_frame_time = Instant::now();
 
     loop {
+        // We get window size once per tick to avoid terminal changing size in
+        // the middle of the frame render
+        let window_dim = window::window_dimensions();
         let now = Instant::now();
         let delta = now - last_frame_time;
         last_frame_time = now;
 
         game.tick(delta);
-        if window::is_window_big_enough(&game) {
-            draw::draw_game(&game, &mut stdout)?;
-            draw::draw_fps(delta, &mut stdout)?;
+        if draw::is_window_big_enough(&game, window_dim) {
+            draw::draw_game(&game, window_dim, &mut stdout)?;
+            draw::draw_fps(delta, window_dim, &mut stdout)?;
 
             if poll(Duration::from_millis(0))? {
                 match read()? {
@@ -68,9 +71,13 @@ fn main() -> std::io::Result<()> {
                         };
                     }
                     Event::Resize(_, _) => {
-                        if window::is_window_big_enough(&game) {
+                        if draw::is_window_big_enough(&game, window_dim) {
                             draw::full_clear(&mut stdout)?;
-                            draw::draw_ui(game.dimensions, &mut stdout)?;
+                            draw::draw_ui(
+                                game.dimensions,
+                                window::window_dimensions(),
+                                &mut stdout,
+                            )?;
                         }
                     }
                     _ => {}

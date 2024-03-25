@@ -1,8 +1,9 @@
-use crate::game::Game;
 use crossterm::terminal::window_size;
 
-pub fn is_window_big_enough(game: &Game) -> bool {
+pub type WindowDimensions = (u16, u16);
+
+pub fn window_dimensions() -> WindowDimensions {
     let terminal_size = window_size().unwrap();
 
-    terminal_size.rows >= game.dimensions.0 + 4 && terminal_size.columns >= game.dimensions.1 + 4
+    (terminal_size.rows, terminal_size.columns)
 }

@@ -70,14 +70,11 @@ fn main() -> std::io::Result<()> {
                             _ => {}
                         };
                     }
-                    Event::Resize(_, _) => {
-                        if draw::is_window_big_enough(&game, window_dim) {
+                    Event::Resize(cols, rows) => {
+                        let new_window_dim = (rows, cols);
+                        if draw::is_window_big_enough(&game, new_window_dim) {
                             draw::full_clear(&mut stdout)?;
-                            draw::draw_ui(
-                                game.dimensions,
-                                window::window_dimensions(),
-                                &mut stdout,
-                            )?;
+                            draw::draw_ui(game.dimensions, new_window_dim, &mut stdout)?;
                         }
                     }
                     _ => {}

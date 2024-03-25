@@ -1,13 +1,13 @@
 use crate::direction::Direction;
 
 pub struct Snake {
-    pub body: Vec<(u8, u8)>,
+    pub body: Vec<(u16, u16)>,
     pub direction: Direction,
     next_direction: Option<Direction>,
 }
 
 impl Snake {
-    pub fn new(body: Vec<(u8, u8)>, direction: Direction) -> Snake {
+    pub fn new(body: Vec<(u16, u16)>, direction: Direction) -> Snake {
         Snake {
             body,
             direction,

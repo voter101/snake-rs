@@ -8,17 +8,17 @@ use crate::utils::manhattan_distance;
 
 pub struct Game {
     snake: Snake,
-    pub dimensions: (u8, u8),
-    pub food: (u8, u8),
+    pub dimensions: (u16, u16),
+    pub food: (u16, u16),
     pub score: u32,
     just_ate: bool,
     next_update_in: Duration,
     speed: Duration,
-    difficulty: u8,
+    difficulty: u16,
 }
 
 impl Game {
-    pub fn new(dimensions: (u8, u8), difficulty: u8) -> Game {
+    pub fn new(dimensions: (u16, u16), difficulty: u16) -> Game {
         let difficulty = difficulty.clamp(1, 9);
         let speed = Duration::from_millis(350 - difficulty as u64 * 30);
         let mut new_obj = Game {
@@ -53,14 +53,14 @@ impl Game {
 
         let direction = self.snake.next_direction();
         let head = self.snake.body.first().unwrap();
-        let mut next_pos: (u8, u8) = next_position(*head, direction, self.dimensions);
+        let mut next_pos: (u16, u16) = next_position(*head, direction, self.dimensions);
         let head_next = next_pos;
 
         if self.just_ate {
             self.snake.body = [vec![next_pos], self.snake.body.clone()]
                 .iter()
                 .flat_map(|e| e.clone())
-                .collect::<Vec<(u8, u8)>>();
+                .collect::<Vec<(u16, u16)>>();
             self.just_ate = false
         } else {
             self.snake.body = self
@@ -95,7 +95,7 @@ impl Game {
     }
 
     fn spawn_food(&mut self) {
-        let mut board_elements: HashSet<(u8, u8)> = (0..self.dimensions.0)
+        let mut board_elements: HashSet<(u16, u16)> = (0..self.dimensions.0)
             .flat_map(|row| {
                 (0..self.dimensions.1)
                     .map(|col| (row, col))
@@ -137,7 +137,11 @@ impl Game {
     }
 }
 
-fn next_position(pos: (u8, u8), direction: Direction, board_dimensions: (u8, u8)) -> (u8, u8) {
+fn next_position(
+    pos: (u16, u16),
+    direction: Direction,
+    board_dimensions: (u16, u16),
+) -> (u16, u16) {
     match direction {
         Direction::Up => {
             if pos.0 == 0 {

@@ -17,7 +17,7 @@ pub fn full_clear(stdout: &mut Stdout) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn draw_ui(game_dimensions: (u8, u8), stdout: &mut Stdout) -> std::io::Result<()> {
+pub fn draw_ui(game_dimensions: (u16, u16), stdout: &mut Stdout) -> std::io::Result<()> {
     let terminal_size = window_size()?;
     let game_screen_start =
         game_screen_starting_position((terminal_size.rows, terminal_size.columns), game_dimensions);
@@ -60,7 +60,7 @@ pub fn draw_ui(game_dimensions: (u8, u8), stdout: &mut Stdout) -> std::io::Resul
 
 fn game_screen_starting_position(
     terminal_size: (u16, u16),
-    game_dimensions: (u8, u8),
+    game_dimensions: (u16, u16),
 ) -> (u16, u16) {
     (
         (terminal_size.0 - game_dimensions.0 as u16) / 2,

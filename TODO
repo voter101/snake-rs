@@ -3,7 +3,6 @@
 - Solve issue with UTF-8. I was not able to print the border with `█`, so I used spaces, which is probably not optimal. Lines are usually taller rather than wider, which causes weird looking top and bottom borders.
 - Proper Game Over screen instead of `panic!`
 - Show FPS counter as an option
-- FPS limiter
 - Handle tight turns by queueing(?) the inputs (e.g. quick 180 degree change with `Right` -> `Down`)
   - How did the original handle it? It feels like they do 2-element queue there
   - Current solution feels close to fine tbh

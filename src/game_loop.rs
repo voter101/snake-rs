@@ -1,9 +1,11 @@
+use crate::consts::FPS_LIMIT;
 use crate::direction;
 use crate::draw;
 use crate::game::Game;
 use crate::window;
 
 use crossterm::event::{poll, read, Event, KeyCode};
+use std::thread;
 use std::time::{Duration, Instant};
 
 pub fn start_loop(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
@@ -17,6 +19,14 @@ pub fn start_loop(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Res
         let window_dim = window::window_dimensions();
         let now = Instant::now();
         let delta = now - last_frame_time;
+
+        // FPS limiter
+        let frame_time = Duration::from_nanos(1000 * 1_000_000 / FPS_LIMIT);
+        if delta < frame_time {
+            thread::sleep(frame_time - delta);
+            continue;
+        }
+
         last_frame_time = now;
 
         game.tick(delta);

@@ -12,6 +12,8 @@ mod utils;
 mod window;
 
 fn main() {
+    std::panic::set_hook(Box::new(|_| terminal::unmount_from_terminal().unwrap()));
+
     let difficulty = 9;
     let mut game = game::Game::new((8, 16), difficulty);
     let mut stdout = stdout();

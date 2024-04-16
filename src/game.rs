@@ -6,7 +6,13 @@ use crate::direction::Direction;
 use crate::snake::Snake;
 use crate::utils::manhattan_distance;
 
+pub enum GameMode {
+    Game,
+    Pause,
+}
+
 pub struct Game {
+    pub mode: GameMode,
     snake: Snake,
     pub dimensions: (u16, u16),
     pub food: (u16, u16),
@@ -22,6 +28,7 @@ impl Game {
         let difficulty = difficulty.clamp(1, 9);
         let speed = Duration::from_millis(350 - difficulty as u64 * 30);
         let mut new_obj = Game {
+            mode: GameMode::Game,
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
             food: (0, 0),
@@ -34,6 +41,14 @@ impl Game {
         new_obj.spawn_food();
 
         new_obj
+    }
+
+    pub fn pause_game(&mut self) {
+        self.mode = GameMode::Pause
+    }
+
+    pub fn unpause_game(&mut self) {
+        self.mode = GameMode::Game
     }
 
     fn game_over(&self) {

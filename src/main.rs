@@ -19,6 +19,6 @@ fn main() {
     let mut stdout = stdout();
 
     terminal::hook_into_terminal(&mut stdout).unwrap();
-    game_loop::start_loop(&mut game, &mut stdout).unwrap();
+    game_loop::start_game(&mut game, &mut stdout).unwrap();
     terminal::unmount_from_terminal().unwrap();
 }

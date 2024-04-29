@@ -63,7 +63,7 @@ impl Game {
             return;
         }
 
-        // FIXME: This mechanism does not work well in case update window is missed significantly
+        // FIXME: This mechanism does not work well in case of very low FPS
         self.next_update_in = self.speed;
 
         let direction = self.snake.next_direction();

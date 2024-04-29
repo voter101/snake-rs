@@ -11,6 +11,8 @@ use std::{
 
 use crate::{consts, game::Game, window::WindowDimensions};
 
+pub mod pause_menu;
+
 pub fn full_clear(stdout: &mut Stdout) -> std::io::Result<()> {
     queue!(stdout, Clear(ClearType::All),)?;
     Ok(())

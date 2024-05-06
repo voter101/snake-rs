@@ -16,13 +16,8 @@ enum LoopSignal {
 }
 
 pub fn start_game(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-    draw::full_clear(stdout)?;
-    draw::draw_ui(game.dimensions, window::window_dimensions(), stdout)?;
-
     let mut last_frame_time = Instant::now();
     loop {
-        // We get window size once per tick to avoid terminal changing size in
-        // the middle of the frame render
         let now = Instant::now();
         let delta = now - last_frame_time;
 
@@ -62,9 +57,10 @@ fn loop_game_mode(
 
     game.tick(tick_delta);
 
-    if draw::is_window_big_enough(&game, window_dim) {
-        draw::draw_game(&game, window_dim, stdout)?;
-        draw::draw_fps(tick_delta, window_dim, stdout)?;
+    if draw::game::is_window_big_enough(&game, window_dim) {
+        draw::game::draw_ui(game.dimensions, window::window_dimensions(), stdout)?;
+        draw::game::draw_game(&game, window_dim, stdout)?;
+        draw::game::draw_fps(tick_delta, window_dim, stdout)?;
 
         if poll(Duration::from_millis(0))? {
             match read()? {
@@ -83,7 +79,7 @@ fn loop_game_mode(
                             game.change_direction(direction::Direction::Right)
                         }
                         KeyCode::Esc => {
-                            draw::full_clear(stdout)?;
+                            draw::utils::full_clear(stdout)?;
                             game.pause_game()
                         }
                         _ => {}
@@ -91,9 +87,8 @@ fn loop_game_mode(
                 }
                 Event::Resize(cols, rows) => {
                     let new_window_dim = (rows, cols);
-                    if draw::is_window_big_enough(&game, new_window_dim) {
-                        draw::full_clear(stdout)?;
-                        draw::draw_ui(game.dimensions, new_window_dim, stdout)?;
+                    if draw::game::is_window_big_enough(&game, new_window_dim) {
+                        draw::utils::full_clear(stdout)?;
                     }
                 }
                 _ => {}
@@ -101,7 +96,7 @@ fn loop_game_mode(
         }
     } else {
         game.pause_game();
-        draw::full_clear(stdout)?;
+        draw::utils::full_clear(stdout)?;
     }
 
     Ok(LoopSignal::Ok)
@@ -119,8 +114,8 @@ fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Re
                     KeyCode::Char('q') | KeyCode::Char('x') => return Ok(LoopSignal::Exit),
 
                     KeyCode::Esc => {
-                        draw::full_clear(stdout)?;
-                        draw::draw_ui(game.dimensions, window_dim, stdout)?;
+                        draw::utils::full_clear(stdout)?;
+                        draw::game::draw_ui(game.dimensions, window_dim, stdout)?;
                         game.unpause_game()
                     }
                     _ => {}
@@ -128,7 +123,7 @@ fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Re
             }
             Event::Resize(cols, rows) => {
                 let new_window_dim = (rows, cols);
-                draw::full_clear(stdout)?;
+                draw::utils::full_clear(stdout)?;
                 draw_pause_screen(new_window_dim, stdout)?;
             }
             _ => {}

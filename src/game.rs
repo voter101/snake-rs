@@ -1,3 +1,4 @@
+use rand::Rng;
 use std::collections::HashSet;
 use std::time::Duration;
 
@@ -16,9 +17,11 @@ pub struct Game {
     snake: Snake,
     pub dimensions: (u16, u16),
     pub food: (u16, u16),
+    pub fruit: Option<((u16, u16), u16)>,
     pub score: u32,
     just_ate: bool,
-    next_update_in: Duration,
+    moves_until_next_fruit: u8,
+    next_tick_in: Duration,
     speed: Duration,
     difficulty: u16,
 }
@@ -32,9 +35,11 @@ impl Game {
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),
             dimensions,
             food: (0, 0),
+            fruit: None,
             score: 0,
             just_ate: false,
-            next_update_in: speed,
+            moves_until_next_fruit: 120,
+            next_tick_in: speed,
             speed,
             difficulty,
         };
@@ -59,12 +64,12 @@ impl Game {
 
     pub fn tick(&mut self, delta: Duration) {
         if !self.can_tick(delta) {
-            self.next_update_in -= delta;
+            self.next_tick_in -= delta;
             return;
         }
 
         // FIXME: This mechanism does not work well in case of very low FPS
-        self.next_update_in = self.speed;
+        self.next_tick_in = self.speed;
 
         let direction = self.snake.next_direction();
         let head = self.snake.body.first().unwrap();
@@ -95,14 +100,34 @@ impl Game {
         }
 
         if head_next == self.food {
-            self.score += self.difficulty as f64 as u32;
+            self.score += self.difficulty as u32;
             self.just_ate = true;
             self.spawn_food();
+        }
+
+        if let Some((fruit, remaining_moves)) = self.fruit {
+            if remaining_moves == 0 {
+                self.moves_until_next_fruit = rand::thread_rng().gen_range(30..180);
+                self.fruit = None;
+            } else if head_next == fruit {
+                self.score += remaining_moves as u32 * self.difficulty as u32;
+                self.just_ate = true;
+                self.moves_until_next_fruit = rand::thread_rng().gen_range(30..180);
+                self.fruit = None;
+            } else {
+                self.fruit = Some((fruit, remaining_moves - 1));
+            }
+        } else {
+            if self.moves_until_next_fruit == 0 {
+                self.spawn_fruit();
+            } else {
+                self.moves_until_next_fruit -= 1;
+            }
         }
     }
 
     fn can_tick(&self, delta: Duration) -> bool {
-        self.next_update_in < delta
+        self.next_tick_in < delta
     }
 
     pub fn change_direction(&mut self, direction: Direction) {
@@ -110,6 +135,23 @@ impl Game {
     }
 
     fn spawn_food(&mut self) {
+        let candidate = self.element_spawn_candidate();
+        match candidate {
+            Some(e) => self.food = e.clone(),
+            None => self.game_over(),
+        }
+    }
+
+    fn spawn_fruit(&mut self) {
+        if let Some(candidate) = self.element_spawn_candidate() {
+            let distance = manhattan_distance(candidate, *self.snake.body.first().unwrap());
+            let allowed_moves = (distance * 2) as u16;
+
+            self.fruit = Some((candidate, allowed_moves));
+        }
+    }
+
+    fn element_spawn_candidate(&mut self) -> Option<(u16, u16)> {
         let mut board_elements: HashSet<(u16, u16)> = (0..self.dimensions.0)
             .flat_map(|row| {
                 (0..self.dimensions.1)
@@ -117,21 +159,27 @@ impl Game {
                     .collect::<Vec<_>>()
             })
             .collect();
+
         for snake_piece in &self.snake.body {
             board_elements.remove(&snake_piece);
         }
 
+        if let Some((fruit, _)) = self.fruit {
+            board_elements.remove(&fruit);
+        }
+
+        board_elements.remove(&self.food);
+
         let snake_head = &self.snake.body.first().unwrap();
 
-        // Nerf randomness
-        let candidate = board_elements.iter().take(3).max_by(|a, b| {
-            manhattan_distance(**a, **snake_head).cmp(&manhattan_distance(**b, **snake_head))
-        });
-
-        match candidate {
-            Some(e) => self.food = e.clone(),
-            None => self.game_over(),
-        }
+        // Sometime random is way too close to the head. This makes it way less likely
+        board_elements
+            .iter()
+            .take(3)
+            .map(|e| e.clone())
+            .max_by(|a, b| {
+                manhattan_distance(*a, **snake_head).cmp(&manhattan_distance(*b, **snake_head))
+            })
     }
 
     pub fn board_to_lines(&self) -> Vec<String> {
@@ -144,6 +192,7 @@ impl Game {
                         BoardPiece::Snake => 'O',
                         BoardPiece::SnakeHead => '#',
                         BoardPiece::Food => '@',
+                        BoardPiece::Fruit => '$',
                         BoardPiece::Empty => ' ',
                     })
                     .collect::<String>()
@@ -194,6 +243,9 @@ fn display_board(game: &Game) -> Vec<Vec<BoardPiece>> {
         vec![vec![BoardPiece::Empty; game.dimensions.1 as usize]; game.dimensions.0 as usize];
 
     res[game.food.0 as usize][game.food.1 as usize] = BoardPiece::Food;
+    if let Some(((row, col), _)) = game.fruit {
+        res[row as usize][col as usize] = BoardPiece::Fruit;
+    }
     for (i, snake_piece) in game.snake.body.iter().enumerate() {
         let piece: BoardPiece = if i == 0 {
             BoardPiece::SnakeHead

@@ -58,9 +58,7 @@ fn loop_game_mode(
     game.tick(tick_delta);
 
     if draw::game::is_window_big_enough(&game, window_dim) {
-        draw::game::draw_ui(game.dimensions, window::window_dimensions(), stdout)?;
-        draw::game::draw_game(&game, window_dim, stdout)?;
-        draw::game::draw_fps(tick_delta, window_dim, stdout)?;
+        draw::game::draw_game_frame(&game, window_dim, tick_delta, stdout)?;
 
         if poll(Duration::from_millis(0))? {
             match read()? {
@@ -115,7 +113,6 @@ fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Re
 
                     KeyCode::Esc => {
                         draw::utils::full_clear(stdout)?;
-                        draw::game::draw_ui(game.dimensions, window_dim, stdout)?;
                         game.unpause_game()
                     }
                     _ => {}

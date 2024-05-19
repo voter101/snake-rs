@@ -15,13 +15,32 @@ pub fn is_window_big_enough(game: &Game, window_dim: WindowDimensions) -> bool {
     window_dim.0 >= game.dimensions.0 + 5 && window_dim.1 >= game.dimensions.1 + 5
 }
 
-pub fn draw_ui(
-    game_board_dimensions: (u16, u16),
+pub fn draw_game_frame(
+    game: &Game,
+    window_dim: WindowDimensions,
+    last_delta: Duration,
+    stdout: &mut Stdout,
+) -> std::io::Result<()> {
+    queue_draw_board_border(game, window_dim, stdout)?;
+    queue_draw_board(game, window_dim, stdout)?;
+    queue_draw_score(game, window_dim, stdout)?;
+    if let Some(_) = game.fruit {
+        queue_draw_fruit_timer(game, window_dim, stdout)?;
+    }
+    queue_draw_fps(last_delta, window_dim, stdout)?;
+
+    stdout.flush()?;
+
+    Ok(())
+}
+
+fn queue_draw_board_border(
+    game: &Game,
     window_dim: WindowDimensions,
     stdout: &mut Stdout,
 ) -> std::io::Result<()> {
     let game_screen_start =
-        game_screen_starting_position((window_dim.0, window_dim.1), game_board_dimensions);
+        game_screen_starting_position((window_dim.0, window_dim.1), game.dimensions);
 
     // Top and bottom line
     queue!(
@@ -32,21 +51,21 @@ pub fn draw_ui(
 
     vec![
         // Left and right border
-        (0..(game_board_dimensions.0 as u16))
+        (0..(game.dimensions.0 as u16))
             .flat_map(|row_i| {
                 let row = game_screen_start.0 + row_i;
                 let first_col = game_screen_start.1 - 1;
-                let last_col = first_col + game_board_dimensions.1 as u16 + 1;
+                let last_col = first_col + game.dimensions.1 as u16 + 1;
 
                 vec![(row, first_col), (row, last_col)]
             })
             .collect::<Vec<(u16, u16)>>(),
         // Top and bottom border
-        (0..(game_board_dimensions.1 as u16 + 2))
+        (0..(game.dimensions.1 as u16 + 2))
             .flat_map(|col_i| {
                 let col = game_screen_start.1 + col_i - 1;
                 let first_row = game_screen_start.0 - 1;
-                let last_row = first_row + game_board_dimensions.0 as u16 + 1;
+                let last_row = first_row + game.dimensions.0 as u16 + 1;
 
                 vec![(first_row, col), (last_row, col)]
             })
@@ -59,28 +78,13 @@ pub fn draw_ui(
     Ok(())
 }
 
-fn game_screen_starting_position(
-    window_dim: (u16, u16),
-    game_board_dimensions: (u16, u16),
-) -> (u16, u16) {
-    (
-        (window_dim.0 - game_board_dimensions.0 as u16) / 2,
-        (window_dim.1 - game_board_dimensions.1 as u16) / 2,
-    )
-}
-
-pub fn draw_game(
+fn queue_draw_board(
     game: &Game,
     window_dim: WindowDimensions,
     stdout: &mut Stdout,
 ) -> std::io::Result<()> {
     let game_screen_start =
         game_screen_starting_position((window_dim.0, window_dim.1), game.dimensions);
-
-    queue_draw_score(game, window_dim, stdout)?;
-    if let Some(_) = game.fruit {
-        queue_draw_fruit_timer(game, window_dim, stdout)?;
-    }
 
     queue!(
         stdout,
@@ -152,7 +156,7 @@ fn queue_draw_fruit_timer(
     Ok(())
 }
 
-pub fn draw_fps(
+fn queue_draw_fps(
     last_delta: Duration,
     window_dim: WindowDimensions,
     stdout: &mut Stdout,
@@ -179,4 +183,14 @@ pub fn draw_fps(
     )?;
 
     Ok(())
+}
+
+fn game_screen_starting_position(
+    window_dim: (u16, u16),
+    game_board_dimensions: (u16, u16),
+) -> (u16, u16) {
+    (
+        (window_dim.0 - game_board_dimensions.0 as u16) / 2,
+        (window_dim.1 - game_board_dimensions.1 as u16) / 2,
+    )
 }

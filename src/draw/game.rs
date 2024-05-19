@@ -21,6 +21,7 @@ pub fn draw_game_frame(
     last_delta: Duration,
     stdout: &mut Stdout,
 ) -> std::io::Result<()> {
+    queue!(stdout, Clear(ClearType::All))?;
     queue_draw_board_border(game, window_dim, stdout)?;
     queue_draw_board(game, window_dim, stdout)?;
     queue_draw_score(game, window_dim, stdout)?;
@@ -147,7 +148,7 @@ fn queue_draw_fruit_timer(
     let text_line = format!("$ {}", game.fruit.unwrap().1);
     queue!(
         stdout,
-        MoveTo(starting_col, starting_row - 1),
+        MoveTo(starting_col, starting_row - 2),
         Print(text_line)
     )?;
 
@@ -171,9 +172,6 @@ fn queue_draw_fps(
     queue!(
         stdout,
         MoveTo(window_dim.1 - fps_length, 0),
-        SetBackgroundColor(consts::BACKGROUND_COLOR),
-        // In case FPS count changes the decimal length
-        Clear(ClearType::CurrentLine),
         SetBackgroundColor(consts::FPS_COUNTER_BACKGROUND_COLOR),
         SetForegroundColor(consts::FPS_COUNTER_TEXT_COLOR),
         Print(fps as u16),

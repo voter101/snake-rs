@@ -1,7 +1,7 @@
 use crossterm::{
     cursor::MoveTo,
     queue,
-    style::{Color, Print, SetBackgroundColor, SetForegroundColor},
+    style::{Print, SetBackgroundColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
 use std::{
@@ -45,8 +45,8 @@ fn queue_draw_board_border(
     // Top and bottom line
     queue!(
         stdout,
-        SetBackgroundColor(Color::Black),
-        SetForegroundColor(Color::DarkGrey)
+        SetBackgroundColor(consts::BOARD_BORDER_COLOR),
+        SetForegroundColor(consts::BACKGROUND_COLOR)
     )?;
 
     vec![
@@ -88,8 +88,8 @@ fn queue_draw_board(
 
     queue!(
         stdout,
-        SetBackgroundColor(Color::DarkGreen),
-        SetForegroundColor(Color::White)
+        SetBackgroundColor(consts::BOARD_FIELD_BACKGROUND_COLOR),
+        SetForegroundColor(consts::BOARD_FIELD_TEXT_COLOR)
     )?;
     game.board_to_lines()
         .iter()
@@ -116,8 +116,8 @@ fn queue_draw_score(
 
     queue!(
         stdout,
-        SetBackgroundColor(Color::DarkGrey),
-        SetForegroundColor(Color::White),
+        SetBackgroundColor(consts::BACKGROUND_COLOR),
+        SetForegroundColor(consts::BACKGROUND_TEXT_COLOR)
     )?;
 
     let score_line = format!("Score: {}", game.score);
@@ -140,8 +140,8 @@ fn queue_draw_fruit_timer(
 
     queue!(
         stdout,
-        SetBackgroundColor(Color::DarkGrey),
-        SetForegroundColor(Color::White),
+        SetBackgroundColor(consts::BACKGROUND_COLOR),
+        SetForegroundColor(consts::BACKGROUND_TEXT_COLOR)
     )?;
 
     let text_line = format!("$ {}", game.fruit.unwrap().1);
@@ -174,8 +174,8 @@ fn queue_draw_fps(
         SetBackgroundColor(consts::BACKGROUND_COLOR),
         // In case FPS count changes the decimal length
         Clear(ClearType::CurrentLine),
-        SetBackgroundColor(Color::Blue),
-        SetForegroundColor(Color::Black),
+        SetBackgroundColor(consts::FPS_COUNTER_BACKGROUND_COLOR),
+        SetForegroundColor(consts::FPS_COUNTER_TEXT_COLOR),
         Print(fps as u16),
         SetBackgroundColor(consts::BACKGROUND_COLOR),
     )?;

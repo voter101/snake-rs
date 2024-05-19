@@ -103,8 +103,6 @@ fn queue_draw_board(
             .unwrap()
         });
 
-    stdout.flush()?;
-
     Ok(())
 }
 

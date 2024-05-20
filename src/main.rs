@@ -12,7 +12,10 @@ mod utils;
 mod window;
 
 fn main() {
-    std::panic::set_hook(Box::new(|_| terminal::unmount_from_terminal().unwrap()));
+    std::panic::set_hook(Box::new(|_| {
+        let mut stdout = stdout();
+        terminal::unmount_from_terminal(&mut stdout).unwrap();
+    }));
 
     let difficulty = 9;
     let mut game = game::Game::new((8, 16), difficulty);
@@ -20,5 +23,5 @@ fn main() {
 
     terminal::hook_into_terminal(&mut stdout).unwrap();
     game_loop::start_game(&mut game, &mut stdout).unwrap();
-    terminal::unmount_from_terminal().unwrap();
+    terminal::unmount_from_terminal(&mut stdout).unwrap();
 }

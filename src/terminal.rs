@@ -1,10 +1,10 @@
 use crate::consts;
 
 use crossterm::{
-    cursor::Hide,
+    cursor::{Hide, Show},
     execute,
     style::{SetBackgroundColor, SetForegroundColor},
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
 pub fn hook_into_terminal(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
@@ -18,6 +18,7 @@ pub fn hook_into_terminal(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
     )
 }
 
-pub fn unmount_from_terminal() -> std::io::Result<()> {
+pub fn unmount_from_terminal(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    execute!(stdout, LeaveAlternateScreen, Show)?;
     disable_raw_mode()
 }

@@ -182,22 +182,26 @@ impl Game {
             })
     }
 
-    pub fn board_to_lines(&self) -> Vec<String> {
-        let board = display_board(self);
-        board
-            .iter()
-            .map(|line| {
-                line.iter()
-                    .map(|field| match field {
-                        BoardPiece::Snake => 'O',
-                        BoardPiece::SnakeHead => '#',
-                        BoardPiece::Food => '@',
-                        BoardPiece::Fruit => '$',
-                        BoardPiece::Empty => ' ',
-                    })
-                    .collect::<String>()
-            })
-            .collect()
+    pub fn board_pieces(&self) -> Vec<Vec<BoardPiece>> {
+        let mut res =
+            vec![vec![BoardPiece::Empty; self.dimensions.1 as usize]; self.dimensions.0 as usize];
+
+        res[self.food.0 as usize][self.food.1 as usize] = BoardPiece::Food;
+
+        if let Some(((row, col), _)) = self.fruit {
+            res[row as usize][col as usize] = BoardPiece::Fruit;
+        }
+
+        for (i, snake_piece) in self.snake.body.iter().enumerate() {
+            let piece: BoardPiece = if i == 0 {
+                BoardPiece::SnakeHead
+            } else {
+                BoardPiece::Snake
+            };
+            res[snake_piece.0 as usize][snake_piece.1 as usize] = piece;
+        }
+
+        res
     }
 }
 
@@ -236,24 +240,4 @@ fn next_position(
             }
         }
     }
-}
-
-fn display_board(game: &Game) -> Vec<Vec<BoardPiece>> {
-    let mut res =
-        vec![vec![BoardPiece::Empty; game.dimensions.1 as usize]; game.dimensions.0 as usize];
-
-    res[game.food.0 as usize][game.food.1 as usize] = BoardPiece::Food;
-    if let Some(((row, col), _)) = game.fruit {
-        res[row as usize][col as usize] = BoardPiece::Fruit;
-    }
-    for (i, snake_piece) in game.snake.body.iter().enumerate() {
-        let piece: BoardPiece = if i == 0 {
-            BoardPiece::SnakeHead
-        } else {
-            BoardPiece::Snake
-        };
-        res[snake_piece.0 as usize][snake_piece.1 as usize] = piece;
-    }
-
-    res
 }

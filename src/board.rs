@@ -23,14 +23,15 @@ pub fn style_game_board(game: &Game) -> Vec<Vec<StyledContent<&str>>> {
                         .on(consts::BOARD_FIELD_BACKGROUND_COLOR),
                     BoardPiece::SnakeHead => "#"
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
-                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
-                        .bold(),
+                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR),
                     BoardPiece::Food => "@"
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
-                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR),
+                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
+                        .bold(),
                     BoardPiece::Fruit => "$"
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
-                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR),
+                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
+                        .bold(),
                     BoardPiece::Empty => " "
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
                         .on(consts::BOARD_FIELD_BACKGROUND_COLOR),

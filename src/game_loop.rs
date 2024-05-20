@@ -16,6 +16,8 @@ enum LoopSignal {
 }
 
 pub fn start_game(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    draw::utils::full_clear(stdout)?;
+
     let mut last_frame_time = Instant::now();
     loop {
         let now = Instant::now();

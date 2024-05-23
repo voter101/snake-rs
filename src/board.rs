@@ -22,7 +22,9 @@ pub fn style_game_board(game: &Game) -> StyledBoard {
                 .map(|field| match field {
                     BoardPiece::Snake => "O"
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
-                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR),
+                        .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
+                        .bold()
+                        .dim(),
                     BoardPiece::SnakeHead => "#"
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
                         .on(consts::BOARD_FIELD_BACKGROUND_COLOR),

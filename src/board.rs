@@ -15,6 +15,12 @@ type StyledBoard<'a> = Vec<Vec<StyledContent<&'a str>>>;
 
 pub fn style_game_board(game: &Game) -> StyledBoard {
     let board_pieces = game.board_pieces();
+
+    let is_fruit_blinking = if let Some((_, i)) = game.fruit {
+        i % 5 == 0
+    } else {
+        false
+    };
     let inner_board = board_pieces
         .iter()
         .map(|line| {
@@ -32,7 +38,7 @@ pub fn style_game_board(game: &Game) -> StyledBoard {
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
                         .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
                         .bold(),
-                    BoardPiece::Fruit => "$"
+                    BoardPiece::Fruit => if is_fruit_blinking { " " } else { "$" }
                         .with(consts::BOARD_FIELD_TEXT_COLOR)
                         .on(consts::BOARD_FIELD_BACKGROUND_COLOR)
                         .bold(),

@@ -1,3 +1,5 @@
+use clap::Parser;
+
 use std::io::stdout;
 
 mod board;
@@ -11,9 +13,27 @@ mod terminal;
 mod utils;
 mod window;
 
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Game speed
+    #[arg(short, long, default_value_t = 5, value_parser = clap::value_parser!(u16).range(1..=9))]
+    difficulty: u16,
+
+    /// Board width
+    #[arg(long, default_value_t = 16, value_parser = clap::value_parser!(u16).range(3..256))]
+    width: u16,
+
+    /// Board height
+    #[arg(long, default_value_t = 8, value_parser = clap::value_parser!(u16).range(3..256))]
+    height: u16,
+}
+
 fn main() {
-    let difficulty = 9;
-    let mut game = game::Game::new((8, 16), difficulty);
+    let args = Args::parse();
+
+    let difficulty = args.difficulty;
+    let mut game = game::Game::new((args.height, args.width), difficulty);
     let mut stdout = stdout();
 
     terminal::hook_into_terminal(&mut stdout).unwrap();

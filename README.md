@@ -1,9 +1,23 @@
-# Snake.rs - snake clone in Rust
+# Snake.rs - Snake implementation in Rust
 
-I wanted to toy with creating a simple game in a terminal while learning Rust.
+A simple toy game I wrote while learning Rust.
 
-The purpose of this project is purely educational.
+![An example frame from the snake-rs game](/screenshot.png)
 
-## Usage
+## Play the game
 
-Run the game with `cargo run` and turn it off with `ESC` key.
+Run the game with:
+
+```sh
+cargo run
+```
+
+To turn off the game, you need to press `ESC` and then on pause menu press `q`.
+
+## Configuration
+
+To configure the game, you can pull the help message with:
+
+```sh
+cargo run -- --help
+```

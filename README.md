@@ -2,7 +2,7 @@
 
 A simple toy game I wrote while learning Rust.
 
-![An example frame from the snake-rs game](/screenshot.png)
+![An example game session of snake-rs](/demo.gif)
 
 ## Play the game
 

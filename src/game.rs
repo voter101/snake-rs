@@ -43,7 +43,7 @@ impl Game {
             speed,
             difficulty,
         };
-        new_obj.spawn_food();
+        new_obj.spawn_food().unwrap();
 
         new_obj
     }
@@ -56,16 +56,10 @@ impl Game {
         self.mode = GameMode::Game
     }
 
-    fn game_over(&self) {
-        println!("Game over!");
-        println!("Final score: {}", self.score);
-        panic!();
-    }
-
-    pub fn tick(&mut self, delta: Duration) {
+    pub fn tick(&mut self, delta: Duration) -> Result<(), ()> {
         if !self.can_tick(delta) {
             self.next_tick_in -= delta;
-            return;
+            return Ok(());
         }
 
         // FIXME: This mechanism does not work well in case of very low FPS
@@ -96,13 +90,16 @@ impl Game {
         }
 
         if self.snake.body[1..].contains(&head_next) {
-            self.game_over();
+            return Err(());
         }
 
         if head_next == self.food {
             self.score += self.difficulty as u32;
             self.just_ate = true;
-            self.spawn_food();
+            match self.spawn_food() {
+                Err(_) => return Err(()),
+                _ => {}
+            };
         }
 
         if let Some((fruit, remaining_moves)) = self.fruit {
@@ -124,6 +121,7 @@ impl Game {
                 self.moves_until_next_fruit -= 1;
             }
         }
+        Ok(())
     }
 
     fn can_tick(&self, delta: Duration) -> bool {
@@ -134,12 +132,13 @@ impl Game {
         self.snake.change_direction(direction)
     }
 
-    fn spawn_food(&mut self) {
+    fn spawn_food(&mut self) -> Result<(), ()> {
         let candidate = self.element_spawn_candidate();
         match candidate {
             Some(e) => self.food = e.clone(),
-            None => self.game_over(),
+            None => return Err(()),
         }
+        Ok(())
     }
 
     fn spawn_fruit(&mut self) {

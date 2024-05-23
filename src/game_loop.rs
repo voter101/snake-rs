@@ -10,12 +10,16 @@ use crossterm::event::{poll, read, Event, KeyCode};
 use std::thread;
 use std::time::{Duration, Instant};
 
-enum LoopSignal {
+pub enum GameLoopSignal {
     Exit,
+    GameOver,
     Ok,
 }
 
-pub fn start_game(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+pub fn start_game(
+    game: &mut Game,
+    stdout: &mut std::io::Stdout,
+) -> std::io::Result<GameLoopSignal> {
     draw::utils::full_clear(stdout)?;
 
     let mut last_frame_time = Instant::now();
@@ -32,32 +36,34 @@ pub fn start_game(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Res
 
         last_frame_time = now;
 
-        match game.mode {
-            GameMode::Game => loop_game_mode(game, delta, stdout)?,
-            GameMode::Pause => {
-                match loop_pause_mode(game, stdout) {
-                    Ok(signal) => match signal {
-                        LoopSignal::Exit => break,
-                        LoopSignal::Ok => continue,
-                    },
-                    Err(e) => {
-                        return Err(e);
-                    }
-                };
+        let loop_res = match game.mode {
+            GameMode::Game => loop_game_mode(game, delta, stdout),
+            GameMode::Pause => loop_pause_mode(game, stdout),
+        };
+
+        match loop_res {
+            Ok(signal) => match signal {
+                GameLoopSignal::Ok => continue,
+                _ => return Ok(signal),
+            },
+            Err(e) => {
+                return Err(e);
             }
         };
     }
-    Ok(())
 }
 
 fn loop_game_mode(
     game: &mut Game,
     tick_delta: Duration,
     stdout: &mut std::io::Stdout,
-) -> std::io::Result<LoopSignal> {
+) -> std::io::Result<GameLoopSignal> {
     let window_dim = window::window_dimensions();
 
-    game.tick(tick_delta);
+    match game.tick(tick_delta) {
+        Ok(_) => {}
+        Err(_) => return Ok(GameLoopSignal::GameOver),
+    };
 
     if draw::game::is_window_big_enough(&game, window_dim) {
         draw::game::draw_game_frame(&game, window_dim, tick_delta, stdout)?;
@@ -99,10 +105,13 @@ fn loop_game_mode(
         draw::utils::full_clear(stdout)?;
     }
 
-    Ok(LoopSignal::Ok)
+    Ok(GameLoopSignal::Ok)
 }
 
-fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Result<LoopSignal> {
+fn loop_pause_mode(
+    game: &mut Game,
+    stdout: &mut std::io::Stdout,
+) -> std::io::Result<GameLoopSignal> {
     let window_dim = window::window_dimensions();
 
     draw_pause_screen(window_dim, stdout)?;
@@ -111,7 +120,7 @@ fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Re
         match read()? {
             Event::Key(event) => {
                 match event.code {
-                    KeyCode::Char('q') | KeyCode::Char('x') => return Ok(LoopSignal::Exit),
+                    KeyCode::Char('q') | KeyCode::Char('x') => return Ok(GameLoopSignal::Exit),
 
                     KeyCode::Esc => {
                         draw::utils::full_clear(stdout)?;
@@ -129,5 +138,5 @@ fn loop_pause_mode(game: &mut Game, stdout: &mut std::io::Stdout) -> std::io::Re
         }
     }
 
-    Ok(LoopSignal::Ok)
+    Ok(GameLoopSignal::Ok)
 }

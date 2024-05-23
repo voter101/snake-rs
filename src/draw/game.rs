@@ -9,7 +9,9 @@ use std::{
     time::Duration,
 };
 
-use crate::{board::style_game_board, consts, game::Game, window::WindowDimensions};
+use crate::{
+    board::style_game_board, config::Config, consts, game::Game, window::WindowDimensions,
+};
 
 pub fn is_window_big_enough(game: &Game, window_dim: WindowDimensions) -> bool {
     window_dim.0 >= game.dimensions.0 + 4 && window_dim.1 >= game.dimensions.1 + 4
@@ -17,6 +19,7 @@ pub fn is_window_big_enough(game: &Game, window_dim: WindowDimensions) -> bool {
 
 pub fn draw_game_frame(
     game: &Game,
+    config: &Config,
     window_dim: WindowDimensions,
     last_delta: Duration,
     stdout: &mut Stdout,
@@ -24,7 +27,9 @@ pub fn draw_game_frame(
     queue_draw_board(game, window_dim, stdout)?;
     queue_draw_score(game, window_dim, stdout)?;
     queue_draw_fruit_timer(game, window_dim, stdout)?;
-    queue_draw_fps(last_delta, stdout)?;
+    if config.show_fps_counter {
+        queue_draw_fps(last_delta, stdout)?;
+    }
 
     stdout.flush()?;
 

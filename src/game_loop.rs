@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::consts::FPS_LIMIT;
 use crate::direction;
 use crate::draw;
@@ -18,6 +19,7 @@ pub enum GameLoopSignal {
 
 pub fn start_game(
     game: &mut Game,
+    config: &Config,
     stdout: &mut std::io::Stdout,
 ) -> std::io::Result<GameLoopSignal> {
     draw::utils::full_clear(stdout)?;
@@ -37,7 +39,7 @@ pub fn start_game(
         last_frame_time = now;
 
         let loop_res = match game.mode {
-            GameMode::Game => loop_game_mode(game, delta, stdout),
+            GameMode::Game => loop_game_mode(game, config, delta, stdout),
             GameMode::Pause => loop_pause_mode(game, stdout),
         };
 
@@ -55,6 +57,7 @@ pub fn start_game(
 
 fn loop_game_mode(
     game: &mut Game,
+    config: &Config,
     tick_delta: Duration,
     stdout: &mut std::io::Stdout,
 ) -> std::io::Result<GameLoopSignal> {
@@ -66,7 +69,7 @@ fn loop_game_mode(
     };
 
     if draw::game::is_window_big_enough(&game, window_dim) {
-        draw::game::draw_game_frame(&game, window_dim, tick_delta, stdout)?;
+        draw::game::draw_game_frame(&game, config, window_dim, tick_delta, stdout)?;
 
         if poll(Duration::from_millis(0))? {
             match read()? {

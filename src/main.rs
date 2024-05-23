@@ -3,6 +3,7 @@ use clap::Parser;
 use std::io::stdout;
 
 mod board;
+mod config;
 mod consts;
 mod direction;
 mod draw;
@@ -27,17 +28,26 @@ struct Args {
     /// Board height
     #[arg(long, default_value_t = 8, value_parser = clap::value_parser!(u16).range(3..256))]
     height: u16,
+
+    /// Show FPS counter
+    #[arg(long, default_value_t = false)]
+    show_fps: bool,
 }
 
 fn main() {
     let args = Args::parse();
 
+    let config = config::Config {
+        show_fps_counter: args.show_fps,
+    };
     let difficulty = args.difficulty;
     let mut game = game::Game::new((args.height, args.width), difficulty);
+
     let mut stdout = stdout();
 
     terminal::hook_into_terminal(&mut stdout).unwrap();
-    match game_loop::start_game(&mut game, &mut stdout) {
+
+    match game_loop::start_game(&mut game, &config, &mut stdout) {
         Ok(signal) => match signal {
             game_loop::GameLoopSignal::Ok => {
                 terminal::unmount_from_terminal(&mut stdout).unwrap();

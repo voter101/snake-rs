@@ -11,9 +11,11 @@ pub enum BoardPiece {
     Empty,
 }
 
-pub fn style_game_board(game: &Game) -> Vec<Vec<StyledContent<&str>>> {
+type StyledBoard<'a> = Vec<Vec<StyledContent<&'a str>>>;
+
+pub fn style_game_board(game: &Game) -> StyledBoard {
     let board_pieces = game.board_pieces();
-    board_pieces
+    let inner_board = board_pieces
         .iter()
         .map(|line| {
             line.iter()
@@ -38,5 +40,29 @@ pub fn style_game_board(game: &Game) -> Vec<Vec<StyledContent<&str>>> {
                 })
                 .collect::<Vec<_>>()
         })
-        .collect()
+        .collect();
+    decorate_with_walls(inner_board)
+}
+
+fn decorate_with_walls(board: StyledBoard) -> StyledBoard {
+    let mut result: StyledBoard = vec![];
+
+    let wall_element = " ".on(consts::BOARD_BORDER_COLOR);
+    let wall_row = vec![vec![wall_element.clone(); board.first().unwrap().len() + 2]];
+
+    result.extend(wall_row.clone());
+    result.extend(
+        board
+            .iter()
+            .map(|line| {
+                let mut res = vec![wall_element];
+                res.extend(line);
+                res.extend(vec![wall_element]);
+                res
+            })
+            .collect::<Vec<_>>(),
+    );
+    result.extend(wall_row.clone());
+
+    result
 }

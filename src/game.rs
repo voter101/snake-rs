@@ -171,7 +171,7 @@ impl Game {
 
         let snake_head = &self.snake.body.first().unwrap();
 
-        // Sometime random is way too close to the head. This makes it way less likely
+        // Sometime random is way too close to the head
         board_elements
             .iter()
             .take(3)

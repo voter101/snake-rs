@@ -1,4 +1,5 @@
 use rand::Rng;
+use std::cmp::max;
 use std::collections::HashSet;
 use std::time::Duration;
 
@@ -144,7 +145,7 @@ impl Game {
     fn spawn_fruit(&mut self) {
         if let Some(candidate) = self.element_spawn_candidate() {
             let distance = manhattan_distance(candidate, *self.snake.body.first().unwrap());
-            let allowed_moves = (distance * 2) as u16;
+            let allowed_moves = max(distance * 2, 10);
 
             self.fruit = Some((candidate, allowed_moves));
         }

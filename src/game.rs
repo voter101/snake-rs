@@ -30,7 +30,7 @@ pub struct Game {
 impl Game {
     pub fn new(dimensions: (u16, u16), difficulty: u16) -> Game {
         let difficulty = difficulty.clamp(1, 9);
-        let speed = Duration::from_millis(350 - difficulty as u64 * 30);
+        let speed = Duration::from_millis(280 - 25 * difficulty as u64);
         let mut new_obj = Game {
             mode: GameMode::Game,
             snake: Snake::new(vec![(0, 0), (0, 1), (0, 2)], Direction::Down),

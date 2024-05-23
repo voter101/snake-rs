@@ -14,7 +14,7 @@ mod terminal;
 mod utils;
 mod window;
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
     /// Game speed
